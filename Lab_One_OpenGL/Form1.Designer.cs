@@ -33,6 +33,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // glControl1
@@ -56,11 +57,11 @@
             this.label1.BackColor = System.Drawing.SystemColors.Desktop;
             this.label1.Font = new System.Drawing.Font("AR DESTINE", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.SystemColors.Control;
-            this.label1.Location = new System.Drawing.Point(564, 508);
+            this.label1.Location = new System.Drawing.Point(577, 508);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(37, 23);
+            this.label1.Size = new System.Drawing.Size(27, 23);
             this.label1.TabIndex = 3;
-            this.label1.Text = "100";
+            this.label1.Text = "10";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2
@@ -69,11 +70,12 @@
             this.label2.BackColor = System.Drawing.SystemColors.Desktop;
             this.label2.Font = new System.Drawing.Font("AR DESTINE", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.SystemColors.Control;
-            this.label2.Location = new System.Drawing.Point(493, 508);
+            this.label2.Location = new System.Drawing.Point(506, 508);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(65, 23);
             this.label2.TabIndex = 4;
             this.label2.Text = "Shots:";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
             // label3
             // 
@@ -83,9 +85,9 @@
             this.label3.ForeColor = System.Drawing.SystemColors.Control;
             this.label3.Location = new System.Drawing.Point(610, 508);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(45, 23);
+            this.label3.Size = new System.Drawing.Size(35, 23);
             this.label3.TabIndex = 5;
-            this.label3.Text = "/100";
+            this.label3.Text = "/10";
             // 
             // label4
             // 
@@ -98,11 +100,23 @@
             this.label4.Size = new System.Drawing.Size(0, 23);
             this.label4.TabIndex = 6;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.BackColor = System.Drawing.SystemColors.Desktop;
+            this.label5.Font = new System.Drawing.Font("AR DESTINE", 25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.ForeColor = System.Drawing.SystemColors.Control;
+            this.label5.Location = new System.Drawing.Point(276, 285);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(0, 39);
+            this.label5.TabIndex = 7;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(704, 566);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -122,6 +136,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
     }
 }
 

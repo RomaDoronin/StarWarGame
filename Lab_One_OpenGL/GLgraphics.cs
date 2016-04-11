@@ -12,17 +12,30 @@ namespace Lab_One_OpenGL
 {
     class GLgraphics
     {
-        public int flag = 0; // Переменная для начала просчета выстрела
-        public float[] rotateB = new float[100]; // Счетчик для выстрела
+        public int flag = 0; // Колличесто выпущенных снаярдов
+        public float DistanceCentrel = 0.1f; // Расстояние корабля до центра
+        public const int MaxShots = 10; // Размер "магазина" коробля
+        public float[] rotateB = new float[MaxShots]; // Счетчик для выстрела
         public float rotateAngle;
-        public double rotateD = 0.03; // Счетчик для взрыва
-        public List<int> texturesIDs = new List<int>();
+        public double[] rotateD = new double[25]/* = 0.03*/; // Счетчик для взрыва
+        public List<int> texturesIDs = new List<int>(); // Список текстур
+        public int sum = 1;
 
-        public float[] pX = new float[100];
-        public float[] pY = new float[100];
-        public float[] pZ = new float[100];
+        public int[] Game = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-        private int Chek = 1;
+        // Массивы, хранящие определители координат снарядов
+        public float[] pX = new float[MaxShots];
+        public float[] pY = new float[MaxShots];
+        public float[] pZ = new float[MaxShots];
+
+        // Массивы, хранящие определители координат кораблей
+        public float[] psX = new float[25];
+        public float[] psY = new float[25];
+        public float[] psZ = new float[25];
+
+        //private int[] ChekTarget = new int[25]; // Идентификатор попадания
+        private int[] ChekTarget = { 1, 1, 1, 1, 1, 1, 1, 1,
+                                       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
         Vector3 cameraPosition = new Vector3(2, 2, 1.2f); //Позиция камеры
         Vector3 cameraDirecton = new Vector3(2, 3, 1); //Направление камеры
@@ -32,7 +45,7 @@ namespace Lab_One_OpenGL
         Vector3 ShipPosition = new Vector3(2, 2, 2); // Позиция камеры
         Vector3 ShotPosition = new Vector3(2, 2, 2); // Позиция снаряда
         Vector3 SightPosition = new Vector3(2, 2, 2); // Позиция прицела
-        //Vector3 ShipDirecton = new Vector3(0, 0, 0); //Направление камеры
+        //Vector3 ShipDirecton = new Vector3(0, 0, 0); //Направление корабля
 
 
         public float latitude = 47.98f;
@@ -95,120 +108,102 @@ namespace Lab_One_OpenGL
 
         public void Render()
         {
-            // Тестовый крадрат
-            //drawTestQuad();
+                // Солнечная система
+                DrawSolSystem();
+                // Фон для SolSystem
+                drawSphere(40, 20, 20, 10);
+                CallSpaceShip();
+                DrawSight();
 
-            // Трансформированный квадрат
-            /*GL.PushMatrix();
-            GL.Translate(1, 1, 1);
-            GL.Rotate(rotateAngle, Vector3.UnitZ);
-            GL.Scale(0.5f, 0.5f, 0.5f);
-            drawTestQuad();
-            GL.PopMatrix();
-            drawTexturedQuad();*/
-            
-            // Сфера
-           
-            /*GL.PushMatrix();
-            GL.Translate(0, 0, 0);
-            GL.Disable(EnableCap.ColorMaterial);
-            GL.Material(MaterialFace.Front, MaterialParameter.Diffuse, Color.Red);
-            GL.Material(MaterialFace.Front, MaterialParameter.Specular, Color.Yellow);
-            GL.Material(MaterialFace.Front, MaterialParameter.Shininess, 50);
-            GL.Material(MaterialFace.Front, MaterialParameter.Ambient, Color.Black);
-            GL.Rotate(rotateAngle/ 50, Vector3.UnitZ);*/
-            //drawSphere(1 , 20, 20, Color.Orange, 6);
-            //GL.PopMatrix();
-
-            // Точка
-            //drawPoint();
-
-            // Линия
-            //drawLine(1, 1, 1);
-
-            // Окружность
-            //drawCircle(1, Color.Red, false);
-
-            // Треугольнкик
-            //drawTriangle();
-
-            // Шестиугольник
-            //drawTriangleStrip();
-
-            // Пирамида четырехугольная без основания
-            //drawTriangleFun();  
-
-            // Куб с текстурами
-            /*GL.PushMatrix();
-            GL.Scale(0.5f, 0.5f, 0.5f);
-            DrawCube();
-            GL.PopMatrix();*/
-            
-            // Солнечная система
-            DrawSolSystem();
-            // Фон для SolSystem
-            drawSphere(40, 20, 20, 10);
-            CallSpaceShip();
-            DrawSight();
-
-            // Рисование Космических корабля
-            for (int i = 0; i < flag; i++)
-            {
-                rotateB[i] += 0.1f;
-                if (rotateB[i] >= 30)
-                { }
-                else
-                    Shot(rotateB[i], i);
-
-                if ((ShotPosition.X < (6 + 1.55)) && (ShotPosition.X > (6 - 1.55)) &&
-                    (ShotPosition.Y < (-6 + 1.55)) && (ShotPosition.Y > (-6 - 1.55)) &&
-                    (ShotPosition.Z < (4 + 1.55)) && (ShotPosition.Z > (4 - 1.55)))
-                    for (int k = 0; k < Chek; k++)
-                    {
-                        rotateB[i] = 30;
-
-                        Chek = 0;
-                    }
-            }
-
-            if (Chek == 0)
-            {
-                GL.PushMatrix();
-                GL.Translate(6, -6, 4);
-                Boom(1.1);
-                GL.PopMatrix();
-
-                GL.PushMatrix();
-                GL.Translate(6, -5, 4);
-                Boom(1.2);
-                GL.PopMatrix();
-            }
-            else if (Chek == 1)
-            {
-                for (int k = 0; k < Chek; k++)
+                // Рисование Космических корабля!
+                if ((DistanceCentrel > -1) && (DistanceCentrel < 45) /*|| (DistanceCentrel > 50)*/)
                 {
+                    AddShip(4.3f + 35, 4.6f, 7.1f, 0, DistanceCentrel);
+                    AddShip(9.9f + 42, -7.3f, 2.1f, 1, DistanceCentrel); //AddShip(9 + xe, 5.6f + ye, 4.9f + ze, 10, DistanceCentrel);
+                    AddShip(1 - 47, 4.9f, 7.5f, 2, DistanceCentrel); //AddShip(5 + xe, 1.4f + ye, 1.8f + ze, 11, DistanceCentrel);
+                    AddShip(6.9f - 37, -3.9f, 6.5f, 3, DistanceCentrel); //AddShip(4.6f + xe, 4.2f + ye, 1 + ze, 12, DistanceCentrel);
+                    AddShip(5, 9.3f + 54, 7.8f, 4, DistanceCentrel); //AddShip(2.8f + xe, 6.2f + ye, 3.9f + ze, 13, DistanceCentrel);
+                    AddShip(-5.6f, 9.7f + 36, 1.5f, 5, DistanceCentrel); //AddShip(9.9f + xe, 8.5f + ye, 1.7f + ze, 14, DistanceCentrel);
+                    AddShip(-1.6f, 8.9f - 66, 1.6f, 6, DistanceCentrel); //AddShip(6.8f + xe, 2.6f + ye, 9.6f + ze, 15, DistanceCentrel);
+                    AddShip(9.8f, 7.2f - 49, 2.4f, 7, DistanceCentrel); //AddShip(2.3f + xe, 6.9f + ye, 2.4f + ze, 16, DistanceCentrel);
+                    //AddShip(4.7f + xe, (-1) * (10 + ye), 2.7f + ze, 8, DistanceCentrel); //AddShip(2.5f + xe, 2.9f + ye, 5.1f + ze, 17, DistanceCentrel);
+                    //AddShip(9.1f + xe, (-1) * (5.3f + ye), 1.1f + ze, 9, DistanceCentrel); //AddShip(5.4f + xe, 4.7f + ye, 5.2f + ze, 18, DistanceCentrel);
+                    DistanceCentrel += 0.02f;
+                }
+                else if (sum != 1) Game[8] += 10;
+        }
+
+        // Функция добавляющая корабль
+        private void AddShip(float xTarget, float yTarget, float zTarget, int iTarget, float l)
+        {
+            if (l == 0.1f)
+            {
+                psX[iTarget] = 0 - xTarget;
+                psY[iTarget] = 0 - yTarget;
+                psZ[iTarget] = 0 - zTarget;
+            }
+
+                xTarget += ((l + 2) * psX[iTarget]) / (float)Math.Sqrt(psX[iTarget] * psX[iTarget] + psY[iTarget] * psY[iTarget] + psZ[iTarget] * psZ[iTarget]);
+                yTarget += ((l + 2) * psY[iTarget]) / (float)Math.Sqrt(psX[iTarget] * psX[iTarget] + psY[iTarget] * psY[iTarget] + psZ[iTarget] * psZ[iTarget]);
+                zTarget += ((l + 2) * psZ[iTarget]) / (float)Math.Sqrt(psX[iTarget] * psX[iTarget] + psY[iTarget] * psY[iTarget] + psZ[iTarget] * psZ[iTarget]);
+
+            HitTheTarget(xTarget, yTarget, zTarget,
+            1.5, 0.4, 0.8, iTarget);
+
+            if ((ChekTarget[iTarget] == 1) || (ChekTarget[iTarget] == 2))
+            {
                     GL.PushMatrix();
-                    GL.Translate(6 + k, -6 - k, 4 + k);
+                    GL.Translate(xTarget, yTarget, zTarget);
+
+                    if (iTarget < 2)
+                        GL.Rotate(180, Vector3.UnitZ);
+                    else if ((iTarget < 4) && (iTarget >= 2))
+                        GL.Rotate(90, Vector3.UnitZ);
+                    else if ((iTarget < 6) && (iTarget >= 4))
+                        GL.Rotate(180, Vector3.UnitZ);
+                    else if ((iTarget < 8) && (iTarget >= 6))
+                        GL.Rotate(90, Vector3.UnitZ);
+
                     DrawSpaceShip();
                     GL.PopMatrix();
-                }
             }
 
 
-            // Стрельба
-            /*for (int i = 0; i < flag; i++)
-            {
-                rotateB[i] += 0.1f;
-                if (rotateB[i] >= 30)
-                {}
-                else
-                Shot(rotateB[i], i);
-            }*/
+        }
 
-            // Координатные оси (X,Y,Z)
-            /*drawLine(10, 0, 0);
-            drawLine(0, 10, 0);
-            drawLine(0, 0, 10); */      
+        // Функция отслеживающая попадания снарядов
+        // ROD - The Radius Of Destruction
+        private void HitTheTarget(double xTarget, double yTarget, double zTarget,
+            double xROD, double yROD, double zROD, int iTarget)
+        {
+            //if (ChekTarget[iTarget] == 1)
+            //{
+                for (int i = 0; i < flag; i++)
+                {
+                    rotateB[i] += 0.05f;
+                    if (rotateB[i] >= 30) // (30) - Дальность полета 
+                    { }
+                    else
+                        Shot(rotateB[i], i);
+
+                    // Проверка на попадание снаряда в корабль
+                    if ((ShotPosition.X < (xTarget + xROD + 0.05)) && (ShotPosition.X > (xTarget - xROD - 0.05)) &&
+                        (ShotPosition.Y < (yTarget + yROD + 0.05)) && (ShotPosition.Y > (yTarget - yROD - 0.05)) &&
+                        (ShotPosition.Z < (zTarget + zROD + 0.05)) && (ShotPosition.Z > (zTarget - zROD - 0.05)))
+                    {
+                        rotateB[i] = 30;
+                        ChekTarget[iTarget] = 2;
+                    }
+                }
+            //}
+            /*else*/ if (ChekTarget[iTarget] == 2)
+            {
+                GL.PushMatrix();
+                GL.Translate(xTarget, yTarget, zTarget);
+                Boom(1.1, iTarget);
+                GL.PopMatrix();
+                Game[iTarget] = 1;
+            }
         }
 
         // Функция загружающая текстуры
@@ -551,7 +546,6 @@ namespace Lab_One_OpenGL
             GL.PopMatrix();
         }
 
-
         // Функция рисующая прицел
         private void DrawSight()
         {
@@ -568,31 +562,95 @@ namespace Lab_One_OpenGL
             GL.Translate(SightPosition.X, SightPosition.Y, SightPosition.Z);
             GL.Rotate(90, Vector3.UnitX);
 
-            drawLine(0.2, 0, 0);
-            drawLine(0, 0.2, 0);
-            drawLine(-0.2, 0, 0);
-            drawLine(0, -0.2, 0);
-            drawLine(0, 0, 0.2);
-            drawLine(0, 0, -0.2);
-            drawCircle(0.2, Color.White, false);
+            {
+                GL.Begin(PrimitiveType.Triangles);
+                GL.Color3(Color.White);
+                GL.Vertex3(0, -0.15, 0);
+                GL.Vertex3(0.04, -0.2, 0);
+                GL.Vertex3(-0.04, -0.2, 0);
+                GL.End();
+
+                GL.Begin(PrimitiveType.Triangles);
+                GL.Color3(Color.White);
+                GL.Vertex3(0, 0.15, 0);
+                GL.Vertex3(0.04, 0.2, 0);
+                GL.Vertex3(-0.04, 0.2, 0);
+                GL.End();
+
+                GL.Begin(PrimitiveType.Triangles);
+                GL.Color3(Color.White);
+                GL.Vertex3(-0.15, 0, 0);
+                GL.Vertex3(-0.2, 0.04, 0);
+                GL.Vertex3(-0.2,-0.04, 0);
+                GL.End();
+
+                GL.Begin(PrimitiveType.Triangles);
+                GL.Color3(Color.White);
+                GL.Vertex3(0.15, 0, 0);
+                GL.Vertex3(0.2, 0.04, 0);
+                GL.Vertex3(0.2, -0.04, 0);
+                GL.End();
+
+                //--------------------------------
+
+                GL.Begin(PrimitiveType.Triangles);
+                GL.Color3(Color.White);
+                GL.Vertex3(0, -0.15, 0);
+                GL.Vertex3(0, -0.2, 0.04);
+                GL.Vertex3(0, -0.2, -0.04);
+                GL.End();
+
+                GL.Begin(PrimitiveType.Triangles);
+                GL.Color3(Color.White);
+                GL.Vertex3(0, 0.15, 0);
+                GL.Vertex3(0, 0.2, 0.04);
+                GL.Vertex3(0, 0.2, -0.04);
+                GL.End();
+
+                GL.Begin(PrimitiveType.Triangles);
+                GL.Color3(Color.White);
+                GL.Vertex3(0, 0, -0.15);
+                GL.Vertex3(0, 0.04, -0.2);
+                GL.Vertex3(0, -0.04, -0.2);
+                GL.End();
+
+                GL.Begin(PrimitiveType.Triangles);
+                GL.Color3(Color.White);
+                GL.Vertex3(0, 0, 0.15);
+                GL.Vertex3(0, 0.04, 0.2);
+                GL.Vertex3(0, -0.04, 0.2);
+                GL.End();
+            }
+
+            /*drawLine(0.15, 0, 0);
+            drawLine(0, 0.15, 0);
+            drawLine(-0.15, 0, 0);
+            drawLine(0, -0.15, 0);
+            drawLine(0, 0, 0.15);
+            drawLine(0, 0, -0.15);*/
+            drawCircle(0.1, Color.White, false);
 
             GL.PopMatrix();
 
             GL.PushMatrix();
             GL.Translate(SightPosition.X, SightPosition.Y, SightPosition.Z);
             GL.Rotate(90, Vector3.UnitY);
-            drawCircle(0.2, Color.White, false);
+            drawCircle(0.1, Color.White, false);
             GL.PopMatrix();
         }
 
         // Функция рисующая Взрыв
-        private void Boom(double RadiusBoom)
+        private void Boom(double RadiusBoom, int iTarget)
         {
-            rotateD += 0.003;
-            if (rotateD  <= RadiusBoom)
+            if (rotateD[iTarget] <= RadiusBoom)
             {
-                GL.Scale(rotateD, rotateD, rotateD);
+                rotateD[iTarget] += 0.003;
+                GL.Scale(rotateD[iTarget], rotateD[iTarget], rotateD[iTarget]);
                 drawSphere(RadiusBoom, 20, 20, 13);
+            }
+            else
+            {
+                ChekTarget[iTarget] = 0;
             }
         }
 
@@ -835,14 +893,22 @@ namespace Lab_One_OpenGL
             GL.PopMatrix();
 
             //Марс
-            GL.PushMatrix();
-            GL.Translate(
-                Math.Sin(rotateAngle / 56.46) * 1.52 * 3,
-                Math.Cos(rotateAngle / 56.46) * 1.52 * 3,
-                0);
-            GL.Rotate(rotateAngle * 1.025f / 50, Vector3.UnitZ);
-            drawSphere(0.456f / 3, 20, 20, 7);
-            GL.PopMatrix();
+            /*HitTheTarget((Math.Sin(rotateAngle / 56.46) * 1.52 * 3),
+                (Math.Cos(rotateAngle / 56.46) * 1.52 * 3),
+                0,
+                0.152, 0.152, 0.152, 2);
+
+            if ((ChekTarget[2] == 1) || (ChekTarget[2] == 2))
+            {*/
+                GL.PushMatrix();
+                GL.Translate(
+                    Math.Sin(rotateAngle / 56.46) * 1.52 * 3,
+                    Math.Cos(rotateAngle / 56.46) * 1.52 * 3,
+                    0);
+                GL.Rotate(rotateAngle * 1.025f / 50, Vector3.UnitZ);
+                drawSphere(0.456f / 3, 20, 20, 7);
+                GL.PopMatrix();
+            //}
 
             //Юпитер
             GL.PushMatrix();

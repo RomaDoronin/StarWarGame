@@ -74,6 +74,20 @@ namespace Lab_One_OpenGL
         {
             glgraphics.Update();
             glControl1.SwapBuffers();
+
+            glgraphics.sum = 1;
+            for (int i = 0; i < 8; i++)
+                glgraphics.sum *= glgraphics.Game[i];
+            glgraphics.sum += glgraphics.Game[8];
+
+            if ((glgraphics.sum > 10) && (glgraphics.sum < 100))
+                {
+                    label5.Text = "YOU LOST";
+                }
+            else if (glgraphics.sum == 1)
+                {
+                    label5.Text = "YOU WIN";
+                }
         }
 
         private void glControl1_MouseMove(object sender, MouseEventArgs e)
@@ -92,7 +106,7 @@ namespace Lab_One_OpenGL
 
         private void glControl1_MouseClick(object sender, MouseEventArgs e)
         {
-            if (glgraphics.flag != 100)
+            if (glgraphics.flag != 10)
             {
                 glgraphics.rotateB[glgraphics.flag] = 0;
                 glgraphics.flag += 1;
@@ -100,7 +114,7 @@ namespace Lab_One_OpenGL
             else
                 label4.Text = "RECHARGE! Press R";
 
-            String s = (100 - glgraphics.flag).ToString();
+            String s = (10 - glgraphics.flag).ToString();
 
             label1.Text = s;
         }
@@ -131,7 +145,7 @@ namespace Lab_One_OpenGL
             {
                 label4.Text = "";
                 glgraphics.flag = 0;
-                label1.Text = "100";
+                label1.Text = "10";
             }
             if (num == 68) // D
             {
@@ -139,6 +153,11 @@ namespace Lab_One_OpenGL
         }
 
         private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
         {
 
         }
